@@ -23,7 +23,7 @@ def run_all_input(wildcards):
                      "Align/Normalized_GC_Coverage.png",
                      "Align/{}_dedup_metrics2.txt".format(config['samples']['id']),
                      "Align/flagstat_metric.txt",
-                     "Align/sentieon_metrics_{}.pdf".format(config['samples']['id'])]
+                     "Align/gatk_metrics_{}.alignment_summary_metrics".format(config['samples']['id'])]
 
     if config['modules']['stLFR']:
         calc_frag_file = ["Calc_Frag_Length/frag_length_distribution.pdf",
@@ -37,7 +37,7 @@ def run_all_input(wildcards):
                 run_all_files.append(parts[0] + "_" + str(split_dist) + "/" + parts[1])
 
     if config['modules']['variant_calling']: 
-        run_all_files.append("Make_Vcf/step1_haplotyper/{}_sentieon.vcf".format(config['samples']['id']))
+        run_all_files.append("Make_Vcf/step1_haplotyper/{}_gatk.vcf".format(config['samples']['id']))
     
     if config['modules']['benchmarking']:
         run_all_files.append("Make_Vcf/step2_benchmarking/snp_compare/summary.txt")
@@ -60,7 +60,7 @@ def run_all_input(wildcards):
         run_all_files.extend(["Make_Vcf/step4_longhap/longhap_results.txt",
                               "Make_Vcf/step3_hapcut/step4_compare_with_refphasing/hapcut_eval.txt",
                               "Make_Vcf/step3_hapcut/step4_compare_with_refphasing/{}_hapcut.phased.vcf".format(config['samples']['id']),
-                              "Make_Vcf/step4_longhap/{}_sentieon_pass_vars.vcf".format(config['samples']['id'])])
+                              "Make_Vcf/step4_longhap/{}_gatk_pass_vars.vcf".format(config['samples']['id'])])
 
     return run_all_files
 
@@ -70,13 +70,13 @@ rule run_all:
         run_all_input
         
 
-include: "/research/rv-02/home/eanderson/CGI_WGS_Pipeline/Snakefiles/calc_frag_len.snakefile"
-include: "/research/rv-02/home/eanderson/CGI_WGS_Pipeline/Snakefiles/remove_sam_analysis.snakefile"
-include: "/research/rv-02/home/eanderson/CGI_WGS_Pipeline/Snakefiles/make_vcf.snakefile"
-include: "/research/rv-02/home/eanderson/CGI_WGS_Pipeline/Snakefiles/metrics.snakefile"
-include: "/research/rv-02/home/eanderson/CGI_WGS_Pipeline/Snakefiles/stlfr.main.snakefile"
-include: "/research/rv-02/home/eanderson/CGI_WGS_Pipeline/Snakefiles/splitreads.snakefile"
-include: "/research/rv-02/home/eanderson/CGI_WGS_Pipeline/Snakefiles/phasing.snakefile"
+include: "/research/rv-02/home/eanderson/CGI_WGS_GATK_Pipeline/Snakefiles/calc_frag_len.snakefile"
+include: "/research/rv-02/home/eanderson/CGI_WGS_GATK_Pipeline/Snakefiles/remove_sam_analysis.snakefile"
+include: "/research/rv-02/home/eanderson/CGI_WGS_GATK_Pipeline/Snakefiles/make_vcf.snakefile"
+include: "/research/rv-02/home/eanderson/CGI_WGS_GATK_Pipeline/Snakefiles/metrics.snakefile"
+include: "/research/rv-02/home/eanderson/CGI_WGS_GATK_Pipeline/Snakefiles/stlfr.main.snakefile"
+include: "/research/rv-02/home/eanderson/CGI_WGS_GATK_Pipeline/Snakefiles/splitreads.snakefile"
+include: "/research/rv-02/home/eanderson/CGI_WGS_GATK_Pipeline/Snakefiles/phasing.snakefile"
 
 shell.prefix('source /research/rv-02/home/eanderson/CGI_WGS_Pipeline/Data_and_Tools/bash_profile; ')
 

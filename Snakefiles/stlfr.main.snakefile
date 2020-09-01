@@ -8,55 +8,31 @@ rule map_reads:
     threads:
         config['threads']['bwa']
     params:
-        sen_install = config['params']['sentieon_install'],
-        sen_license = config['params']['sentieon_license'],
+        gatk_install = config['params']['gatk_install'],
         readgroup = r'@RG\tID:{0}\tSM:{0}\tPL:{1}'.format(config['samples']['id'],
                                                           config['params']['platform'])
     benchmark:
         "Benchmarks/main.map_reads.txt"
     shell:
-        "{params.sen_install}/bin/bwa mem -M -R '{params.readgroup}' -C "
+        "bwa mem -M -R '{params.readgroup}' -C "
             "-t {threads} {input.ref} {input.fqs} 2>Align/aln.err | tee {output.sam} | "
-        "{params.sen_install}/bin/sentieon util sort -o {output.bam} -t {threads} --sam2bam -i -"
-
-
-rule locus_collector:
-    input:
-        "Align/{id}.sort.bam"
-    output:
-        "Align/{id}_score.txt"
-    threads:
-        config['threads']['bwa']
-    params:
-        sen_install = config['params']['sentieon_install']
-    benchmark:
-        "Benchmarks/main.locus_collector.{id}.txt"
-    shell:
-        "{params.sen_install}/bin/sentieon driver  -t {threads} "
-            "-i {input} "
-            "--algo LocusCollector "
-            "--fun score_info {output}"
+        "samtools sort -o {output.bam} -@ {threads} -O bam -"
 
 
 rule mark_dups:
     input:
         bam = "Align/{id}.sort.bam",
-        score = "Align/{id}_score.txt"
     output:
         bam = "Align/{id}.sort.rmdup.bam",
         metrics = "Align/{id}_dedup_metrics.txt"
-    threads:
-        config['threads']['bwa']
     params:
-        sen_install = config['params']['sentieon_install']
+        gatk_install = config['params']['gatk_install']
     benchmark:
         "Benchmarks/main.mark_dups.{id}.txt"
     shell:
-        "{params.sen_install}/bin/sentieon driver  -t {threads} "
-            "-i {input.bam} "
-            "--algo Dedup "
-            "--score_info {input.score} "
-            "--metrics {output.metrics} {output.bam}"
+        "{params.gatk_install} gatk MarkDuplicates -I {input.bam} "
+            "-O {output.bam} "
+            "-M {output.metrics}"
 
 
 rule mark_dups_txt:

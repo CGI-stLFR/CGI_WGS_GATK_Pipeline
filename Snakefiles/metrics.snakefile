@@ -1,117 +1,41 @@
-
-#rule gc_depth:
-#    input:
-#        bam = "Align/{}.sort.rmdup.bam".format(config['samples']['id']),
-#        fasta_gc = config['params']['gc_bias_index']
-#    output:
-#        exome = "Align/exome_gc_depth.txt",
-#        genome = "Align/genome_gc_depth.txt"
-#    params:
-#        toolsdir = config['params']['toolsdir']
-#    shell:
-#        "samtools depth {input.bam} | "
-#        "{params.toolsdir}/tools/gcBiasBinCaler cal {input.fasta_gc} - 500 "
-#            "{output.exome} > {output.genome} 2> /dev/null"
-#
-#
-#rule genome_gc_bias:
-#    input:
-#        "Align/genome_gc_depth.txt"
-#    output:
-#        "Align/genome_gc_bias.txt"
-#    params:
-#        toolsdir = config['params']['toolsdir'],
-#        python = config['params']['wenlan_python']
-#    shell:
-#        "{params.python} {params.toolsdir}/tools/calGcBiasCurve.py {input} > {output}"
-#
-#
-#rule exome_gc_bias:
-#    input:
-#        "Align/exome_gc_depth.txt"
-#    output:
-#        "Align/exome_gc_bias.txt"
-#    params:
-#        toolsdir = config['params']['toolsdir'],
-#        python = config['params']['wenlan_python']
-#    shell:
-#        "{params.python} {params.toolsdir}/tools/calGcBiasCurve.py {input} > {output}"
-#
-#
-#rule plot_genome_gc_bias:
-#    input:
-#        "Align/genome_gc_bias.txt"
-#    output:
-#        "Align/genome_gc_bias.pdf"
-#    params:
-#        toolsdir = config['params']['toolsdir']
-#    shell:
-#        "{params.toolsdir}/tools/R-3.2.1/bin/Rscript "
-#        "{params.toolsdir}/tools/AlignmentGCbias.R "
-#        "{input} {output} 2"
-#
-#
-#rule plot_exome_gc_bias:
-#    input:
-#        "Align/exome_gc_bias.txt"
-#    output:
-#        "Align/exome_gc_bias.pdf"
-#    params:
-#        toolsdir = config['params']['toolsdir']
-#    shell:
-#        "{params.toolsdir}/tools/R-3.2.1/bin/Rscript "
-#        "{params.toolsdir}/tools/AlignmentGCbias.R "
-#        "{input} {output} 2"
-
-
 rule calculate_metrics:
     input:
         bam = "Align/{id}.sort.bam",
         ref = config['params']['ref_fa']
     output:
-        gc_sum = "Align/sentieon_gc_{id}_sum.txt",
-        gc_met = "Align/sentieon_gc_{id}_metric.txt",
-        mq = "Align/sentieon_mq_{id}_metric.txt",
-        qd = "Align/sentieon_qd_{id}_metric.txt",
-        insert = "Align/sentieon_is_{id}_metric.txt",
-        aln = "Align/sentieon_aln_{id}_metric.txt"
+        aln_sum = "Align/gatk_metrics_{id}.alignment_summary_metrics",
     threads:
         config['threads']['metrics']
     params:
-        sen_install = config['params']['sentieon_install']
+        gatk_install = config['params']['gatk_install']
     benchmark:
         "Benchmarks/metrics.calculate_metrics.{id}.txt"
     shell:
-        "{params.sen_install}/bin/sentieon driver "
-            "-t {threads} "
-            "-r {input.ref} "
-            "-i {input.bam} "
-            "--algo GCBias --summary {output.gc_sum} {output.gc_met} "
-            "--algo MeanQualityByCycle {output.mq} "
-            "--algo QualDistribution {output.qd} "
-            "--algo InsertSizeMetricAlgo {output.insert} "
-            "--algo AlignmentStat {output.aln}"
+        "{params.gatk_install} gatk CalculateMultipleMetrics "
+            "-R {input.ref} "
+            "-I {input.bam} "
+            "-O Align/gatk_metrics_{wildcards.id}"
 
 
-rule plot_metrics:
-    input:
-        gc_met = "Align/sentieon_gc_{id}_metric.txt",
-        mq = "Align/sentieon_mq_{id}_metric.txt",
-        qd = "Align/sentieon_qd_{id}_metric.txt",
-        insert = "Align/sentieon_is_{id}_metric.txt"
-    output:
-        "Align/sentieon_metrics_{id}.pdf"
-    params:
-        sen_install = config['params']['sentieon_install']
-    benchmark:
-        "Benchmarks/metrics.plot_metrics.{id}.txt"
-    shell:
-        "{params.sen_install}/bin/sentieon plot metrics "
-            "-o {output} "
-            "gc={input.gc_met} "
-            "mq={input.mq} "
-            "qd={input.qd} "
-            "isize={input.insert}"
+#rule plot_metrics:
+#    input:
+#        gc_met = "Align/gatk_gc_{id}_metric.txt",
+#        mq = "Align/gatk_mq_{id}_metric.txt",
+#        qd = "Align/gatk_qd_{id}_metric.txt",
+#        insert = "Align/gatk_is_{id}_metric.txt"
+#    output:
+#        "Align/gatk_metrics_{id}.pdf"
+#    params:
+#        gatk_install = config['params']['gatk_install']
+#    benchmark:
+#        "Benchmarks/metrics.plot_metrics.{id}.txt"
+#    shell:
+#        "{params.gatk_install}/bin/gatk plot metrics "
+#            "-o {output} "
+#            "gc={input.gc_met} "
+#            "mq={input.mq} "
+#            "qd={input.qd} "
+#            "isize={input.insert}"
 
 
 rule duplicate_analysis:
@@ -219,7 +143,7 @@ rule moar_gc_plots:
 def summary_report_input(wildcards):
     summary_report_files = ["Align/coverage_depth.txt",
                             "Align/picard_align_metrics.txt",
-                            "Align/sentieon_is_{}_metric.txt".format(config['samples']['id'])]
+                            "Align/gatk_is_{}_metric.txt".format(config['samples']['id'])]
 
     if config['modules']['stLFR']:
         calc_frag_file = ["Calc_Frag_Length/frag_length_distribution.pdf",

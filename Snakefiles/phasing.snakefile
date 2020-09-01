@@ -23,10 +23,10 @@ rule split_hapcut_bam:
 
 rule gzip_hapcut_vcf:
     input:
-        "Make_Vcf/step1_haplotyper/{id}_sentieon_pass_vars.vcf"
+        "Make_Vcf/step1_haplotyper/{id}_gatk_pass_vars.vcf"
     output:
-        gz_vcf = "Make_Vcf/step3_hapcut/step2_split_vcf/{id}_sentieon_pass_vars.vcf.gz",
-        index = "Make_Vcf/step3_hapcut/step2_split_vcf/{id}_sentieon_pass_vars.vcf.gz.tbi"
+        gz_vcf = "Make_Vcf/step3_hapcut/step2_split_vcf/{id}_gatk_pass_vars.vcf.gz",
+        index = "Make_Vcf/step3_hapcut/step2_split_vcf/{id}_gatk_pass_vars.vcf.gz.tbi"
     params:
         bcftools = config['params']['bcftools']
     shell:
@@ -37,10 +37,10 @@ rule gzip_hapcut_vcf:
 
 rule split_hapcut_vcf:
     input:
-        vcf = "Make_Vcf/step3_hapcut/step2_split_vcf/{id}_sentieon_pass_vars.vcf.gz",
-        index = "Make_Vcf/step3_hapcut/step2_split_vcf/{id}_sentieon_pass_vars.vcf.gz.tbi"
+        vcf = "Make_Vcf/step3_hapcut/step2_split_vcf/{id}_gatk_pass_vars.vcf.gz",
+        index = "Make_Vcf/step3_hapcut/step2_split_vcf/{id}_gatk_pass_vars.vcf.gz.tbi"
     output:
-        "Make_Vcf/step3_hapcut/step2_split_vcf/{id}_sentieon_pass_vars_{chr}.vcf"
+        "Make_Vcf/step3_hapcut/step2_split_vcf/{id}_gatk_pass_vars_{chr}.vcf"
     params:
         bcftools = config['params']['bcftools'],
         id = config['samples']['id']
@@ -54,7 +54,7 @@ rule split_hapcut_vcf:
 rule get_hapcut_fragments:
     input:
         bam = "Make_Vcf/step3_hapcut/step1_modify_bam/{id}_sort.rmdup_{chr}.bam",
-        vcf = "Make_Vcf/step3_hapcut/step2_split_vcf/{id}_sentieon_pass_vars_{chr}.vcf"
+        vcf = "Make_Vcf/step3_hapcut/step2_split_vcf/{id}_gatk_pass_vars_{chr}.vcf"
     output:
         "Make_Vcf/step3_hapcut/step3_run_hapcut2_10xpipeline/s1_unlinked_frag/{id}_unlinked_fragment_{chr}"
     params:
@@ -69,7 +69,7 @@ rule get_hapcut_fragments:
 rule link_hapcut_fragments:
     input:
         bam = "Make_Vcf/step3_hapcut/step1_modify_bam/{id}_sort.rmdup_{chr}.bam",
-        vcf = "Make_Vcf/step3_hapcut/step2_split_vcf/{id}_sentieon_pass_vars_{chr}.vcf",
+        vcf = "Make_Vcf/step3_hapcut/step2_split_vcf/{id}_gatk_pass_vars_{chr}.vcf",
         frag = "Make_Vcf/step3_hapcut/step3_run_hapcut2_10xpipeline/s1_unlinked_frag/{id}_unlinked_fragment_{chr}"
     output:
         "Make_Vcf/step3_hapcut/step3_run_hapcut2_10xpipeline/s2_link_frag_files/{id}_linked_frag_{chr}"
@@ -85,13 +85,13 @@ rule link_hapcut_fragments:
 
 
 #def get_vcf(wildcards):
-#    return "Make_Vcf/step3_hapcut/step2_split_vcf/{}_sentieon_pass_vars_{}.vcf".format(config['samples']['id'], wildcards.chr)
+#    return "Make_Vcf/step3_hapcut/step2_split_vcf/{}_gatk_pass_vars_{}.vcf".format(config['samples']['id'], wildcards.chr)
 
 
 rule run_hapcut2:
     input:
         frag = "Make_Vcf/step3_hapcut/step3_run_hapcut2_10xpipeline/s2_link_frag_files/{id}_linked_frag_{chr}",
-        vcf = "Make_Vcf/step3_hapcut/step2_split_vcf/{id}_sentieon_pass_vars_{chr}.vcf"
+        vcf = "Make_Vcf/step3_hapcut/step2_split_vcf/{id}_gatk_pass_vars_{chr}.vcf"
     output:
         blocks = "Make_Vcf/step3_hapcut/step3_run_hapcut2_10xpipeline/s3_hapcut_output/{id}_hapblock_{chr}",
         vcf = "Make_Vcf/step3_hapcut/step3_run_hapcut2_10xpipeline/s3_hapcut_output/{id}_hapblock_{chr}.phased.VCF"
@@ -108,7 +108,7 @@ rule evaluate_hapcut2:
     input:
         hapblock = expand("Make_Vcf/step3_hapcut/step3_run_hapcut2_10xpipeline/s3_hapcut_output/{id}_hapblock_{chr}", id=config['samples']['id'], chr=CHROMS),
         frag = expand("Make_Vcf/step3_hapcut/step3_run_hapcut2_10xpipeline/s2_link_frag_files/{id}_linked_frag_{chr}", id=config['samples']['id'], chr=CHROMS),
-        vcf = expand("Make_Vcf/step3_hapcut/step2_split_vcf/{id}_sentieon_pass_vars_{chr}.vcf", id=config['samples']['id'], chr=CHROMS)
+        vcf = expand("Make_Vcf/step3_hapcut/step2_split_vcf/{id}_gatk_pass_vars_{chr}.vcf", id=config['samples']['id'], chr=CHROMS)
     output:
         "Make_Vcf/step3_hapcut/step4_compare_with_refphasing/hapcut_eval.txt"
     params:
@@ -179,9 +179,9 @@ rule aggregate_hapcut_vcf:
 
 rule get_snps_for_longhap:
     input:
-        "Make_Vcf/step1_haplotyper/{id}_sentieon_pass_vars.vcf"
+        "Make_Vcf/step1_haplotyper/{id}_gatk_pass_vars.vcf"
     output:
-        "Make_Vcf/step4_longhap/{id}_sentieon_pass_vars.vcf"
+        "Make_Vcf/step4_longhap/{id}_gatk_pass_vars.vcf"
     params:
         bcftools = config['params']['bcftools']
     shell:
@@ -191,7 +191,7 @@ rule get_snps_for_longhap:
 rule generate_longhap_scripts:
     input:
         bam = "Align/{}.sort.rmdup.bam".format(config['samples']['id']),
-        vcf = "Make_Vcf/step4_longhap/{}_sentieon_pass_vars.vcf".format(config['samples']['id'])
+        vcf = "Make_Vcf/step4_longhap/{}_gatk_pass_vars.vcf".format(config['samples']['id'])
     output:
         "Make_Vcf/step4_longhap/LibShDir/run.{chr}.sh"
     params:
@@ -275,7 +275,7 @@ rule run_longhap_shells:
 rule evaluate_longhap:
     input:
         vcfs = expand("Make_Vcf/step4_longhap/LibOutDir/{chr}.vcf", chr=CHROMS),
-        vcf = "Make_Vcf/step4_longhap/{}_sentieon_pass_vars.vcf".format(config['samples']['id'])
+        vcf = "Make_Vcf/step4_longhap/{}_gatk_pass_vars.vcf".format(config['samples']['id'])
     output:
         "Make_Vcf/step4_longhap/longhap_results.txt"
     params:

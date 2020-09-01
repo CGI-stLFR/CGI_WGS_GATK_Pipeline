@@ -4,58 +4,25 @@ rule run_dnascope:
         bam = "Align/{id}.sort.rmdup.bam",
         ref = REF
     output:
-        "Make_Vcf/step1_haplotyper/{id}_sentieon.tmp.vcf"
-    threads:
-        config['threads']['haplotyper']
+        "Make_Vcf/step1_haplotyper/{id}_gatk.vcf"
     params:
-        sen_install = config['params']['sentieon_install'],
-        sen_model = config['params']['sentieon_model'],
+        gatk_install = config['params']['gatk_install'],
         dbsnp = config['params']['dbsnp_path']
     benchmark:
-        "Benchmarks/make_vcf.run_dnascope.{id}.txt"
+        "Benchmarks/make_vcf.run_hpcaller.{id}.txt"
     run:
-        command = ["{params.sen_install}/bin/sentieon", "driver", 
-                   "-r", "{input.ref}", "-t", "{threads}",
-                   "-i", "{input.bam}", "--algo", "DNAscope"]
+        command = ["{params.gatk_install}", "gatk", "HaplotypeCaller"
+                   "-R", "{input.ref}", "-I", "{input.bam}"]
         if params.dbsnp:
-            command.extend(["-d", "{params.dbsnp}"])
-        command.extend(["--model", "{params.sen_model}", "{output}"])
+            command.extend(["-D", "{params.dbsnp}"])
         shell(" ".join(command))
-
-#    shell:
-#        "{params.sen_install}/bin/sentieon driver -r {input.ref}  -t {threads} "
-#            "-i {input.bam} "
-#            "--algo DNAscope "
-#            "-d {params.dbsnp} "
-#            "--model {params.sen_model} "            
-#            "{output}"
-
-
-rule run_dnamodel_apply:
-    input:
-        vcf = "Make_Vcf/step1_haplotyper/{id}_sentieon.tmp.vcf",
-        ref = REF
-    output:
-        "Make_Vcf/step1_haplotyper/{id}_sentieon.vcf"
-    threads:
-        config['threads']['haplotyper']
-    params:
-        sen_install = config['params']['sentieon_install'],
-        sen_model = config['params']['sentieon_model']
-    benchmark:
-        "Benchmarks/make_vcf.run_dnamodel_apply.{id}.txt"
-    shell:
-        "{params.sen_install}/bin/sentieon driver -t {threads} -r {input.ref} "
-        "--algo DNAModelApply "
-        "--model {params.sen_model} "
-        "-v {input.vcf} {output}"
 
 
 rule keep_pass_vars:
     input:
-        "Make_Vcf/step1_haplotyper/{id}_sentieon.vcf"
+        "Make_Vcf/step1_haplotyper/{id}_gatk.vcf"
     output:
-        "Make_Vcf/step1_haplotyper/{id}_sentieon_pass_vars.vcf"
+        "Make_Vcf/step1_haplotyper/{id}_gatk_pass_vars.vcf"
     benchmark:
         "Benchmarks/make_vcf.keep_pass_vars.{id}.txt"
     shell:
@@ -65,7 +32,7 @@ rule keep_pass_vars:
 
 rule select_snps:
     input:
-        "Make_Vcf/step1_haplotyper/{id}_sentieon.vcf"
+        "Make_Vcf/step1_haplotyper/{id}_gatk.vcf"
     output:
         "Make_Vcf/step2_benchmarking/{id}.snp.vcf.gz"
     benchmark:
@@ -76,7 +43,7 @@ rule select_snps:
 
 rule select_indels:
     input:
-        "Make_Vcf/step1_haplotyper/{id}_sentieon.vcf"
+        "Make_Vcf/step1_haplotyper/{id}_gatk.vcf"
     output:
         "Make_Vcf/step2_benchmarking/{id}.indel.vcf.gz"
     benchmark:
