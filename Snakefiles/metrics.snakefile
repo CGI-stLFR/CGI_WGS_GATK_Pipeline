@@ -11,7 +11,7 @@ rule calculate_metrics:
     benchmark:
         "Benchmarks/metrics.calculate_metrics.{id}.txt"
     shell:
-        "{params.gatk_install} gatk CalculateMultipleMetrics "
+        "{params.gatk_install} CollectMultipleMetrics "
             "-R {input.ref} "
             "-I {input.bam} "
             "-O Align/gatk_metrics_{wildcards.id}"
@@ -143,7 +143,7 @@ rule moar_gc_plots:
 def summary_report_input(wildcards):
     summary_report_files = ["Align/coverage_depth.txt",
                             "Align/picard_align_metrics.txt",
-                            "Align/gatk_is_{}_metric.txt".format(config['samples']['id'])]
+                            "Align/gatk_metrics_{}.alignment_summary_metrics".format(config['samples']['id'])]
 
     if config['modules']['stLFR']:
         calc_frag_file = ["Calc_Frag_Length/frag_length_distribution.pdf",
@@ -177,6 +177,6 @@ rule generate_summary_report:
     benchmark:
         "Benchmarks/metrics.generate_summary_report.txt"
     shell:
-        "python {params.toolsdir}/tools/summary_report_v3.py {params.samp} {params.read_length} {params.min_frag}| "
+        "python3 {params.toolsdir}/tools/summary_report_v4.py | "
         "tee > {output}"
 

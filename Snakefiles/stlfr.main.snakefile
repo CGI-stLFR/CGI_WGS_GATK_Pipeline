@@ -30,9 +30,18 @@ rule mark_dups:
     benchmark:
         "Benchmarks/main.mark_dups.{id}.txt"
     shell:
-        "{params.gatk_install} gatk MarkDuplicates -I {input.bam} "
+        "{params.gatk_install} MarkDuplicates -I {input.bam} "
             "-O {output.bam} "
             "-M {output.metrics}"
+
+
+rule index_mark_dups:
+    input:
+        bam = "Align/{id}.sort.rmdup.bam"
+    output:
+        bai = "Align/{id}.sort.rmdup.bam.bai"
+    shell:
+        "samtools index {input}"
 
 
 rule mark_dups_txt:

@@ -20,7 +20,8 @@ def get_chroms(wildcards):
 
 rule calc_frag_len:
     input:
-        "Align/{}.sort.rmdup.bam".format(config['samples']['id'])
+        bam = "Align/{}.sort.rmdup.bam".format(config['samples']['id']),
+        bai = "Align/{}.sort.rmdup.bam.bai".format(config['samples']['id'])
     output:
         "Calc_Frag_Length_{split}/frag_length_distribution.pdf",
         "Calc_Frag_Length_{split}/n_read_distribution.pdf",
@@ -51,7 +52,7 @@ rule calc_frag_len:
         if params.include_dups:
             command.append("--includedups")
 
-        command.append("{input}")
+        command.append("{input.bam}")
     
         shell(" ".join(command))
     

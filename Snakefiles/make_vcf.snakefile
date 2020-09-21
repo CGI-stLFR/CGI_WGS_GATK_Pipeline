@@ -2,6 +2,7 @@
 rule run_dnascope:
     input:
         bam = "Align/{id}.sort.rmdup.bam",
+        bai = "Align/{id}.sort.rmdup.bam.bai",
         ref = REF
     output:
         "Make_Vcf/step1_haplotyper/{id}_gatk.vcf"

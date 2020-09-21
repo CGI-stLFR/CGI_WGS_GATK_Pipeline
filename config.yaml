@@ -20,6 +20,7 @@ params:
     toolsdir: "/research/rv-02/home/eanderson/CGI_WGS_Pipeline/Data_and_Tools"
     barcode: "/barcode.list"
     barcode_RC: "/barcode_RC.list"
+    gatk_install: "/home/eanderson/gatk-4.1.2.0/gatk"
     sentieon_install: "/opt/sentieon-genomics-201808.07"
     sentieon_license: "SENTIEON_LICENSE=sentieon-license-server.completegenomics.com:8990"
     wenlan_python: "/opt/cgi-anaconda2-4.4.0/bin/python"
