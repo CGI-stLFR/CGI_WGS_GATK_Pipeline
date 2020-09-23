@@ -1,3 +1,4 @@
+# Rule for mapping reads
 rule map_reads:
     input:
         ref = REF,
@@ -14,11 +15,14 @@ rule map_reads:
     benchmark:
         "Benchmarks/main.map_reads.txt"
     shell:
+        # map with readgroup and comments appended, this creates a BX tag with the barcode
+        # Also includes sorting
         "bwa mem -M -R '{params.readgroup}' -C "
             "-t {threads} {input.ref} {input.fqs} 2>Align/aln.err | tee {output.sam} | "
         "samtools sort -o {output.bam} -@ {threads} -O bam -"
 
 
+# Perform the deduplication step and generate metrics
 rule mark_dups:
     input:
         bam = "Align/{id}.sort.bam",
@@ -35,6 +39,7 @@ rule mark_dups:
             "-M {output.metrics}"
 
 
+# Index markdups bam
 rule index_mark_dups:
     input:
         bam = "Align/{id}.sort.rmdup.bam"
@@ -44,6 +49,7 @@ rule index_mark_dups:
         "samtools index {input}"
 
 
+# This step parses the duplicate metrics and creates a more readable summary
 rule mark_dups_txt:
     input:
         "Align/{id}_dedup_metrics.txt"
@@ -55,5 +61,3 @@ rule mark_dups_txt:
         "Benchmarks/main.mark_dups_txt.{id}.txt"
     shell:
         "perl {params.toolsdir}/tools/mark_dups_txt.pl {input} {output}"
-
-
