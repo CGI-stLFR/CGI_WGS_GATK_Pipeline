@@ -172,7 +172,7 @@ rule aggregate_hapcut_vcf:
                     break
 
 
-        file_dict =
+        file_dict = {}
         # iterate through input VCFs
         # to create a dictionary of contigs and file paths
         for file in input.vcfs:
@@ -248,7 +248,7 @@ rule generate_longhap_scripts:
         longhap_log2vcf = longhap_ex.parent / "log2vcf.pl"
 
         ref_index = REF + ".fai"
-        ref_dict =
+        ref_dict = {}
 
         # get the contig lengths from the fasta index
         # These are used to create the various bins for the shell scripts

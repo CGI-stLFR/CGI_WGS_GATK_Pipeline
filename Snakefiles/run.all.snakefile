@@ -18,10 +18,11 @@ if not config['samples']['chroms']:
     except Exception as e:
         print(f"{REF}.fai cannot be opened for parsing.")
         print(f"Exception: {e}")
-        sys.exit(1
+        sys.exit(1)
 # if the chroms are defined just use those
 else:
     CHROMS = config['samples']['chroms']
+
 
 # define a function to return target files based on config settings
 def run_all_input(wildcards):
@@ -82,10 +83,12 @@ def run_all_input(wildcards):
 
     return run_all_files
 
+
 # rule run all, the files above are the targets for snakemake
 rule run_all:
     input:
         run_all_input
+
 
 # Include other modules and rules to run
 # When possible the include statement points to the CGI_WGS_Pipeline
@@ -100,3 +103,4 @@ include: "/research/rv-02/home/eanderson/CGI_WGS_GATK_Pipeline/Snakefiles/phasin
 
 # source the bash_profile setup for the pipeline
 shell.prefix('source /research/rv-02/home/eanderson/CGI_WGS_Pipeline/Data_and_Tools/bash_profile; ')
+
