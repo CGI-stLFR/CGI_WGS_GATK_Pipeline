@@ -1,0 +1,101 @@
+samples:
+    # specifies expected location of split reads
+    fastq: [data/split_read.1.fq.gz, data/split_read.2.fq.gz]
+    # path to directory with the below lanes fastqs
+    fq_path: "../fastq"
+    # list of lanes to use. Should be directories within the fq_path directory
+    lanes: [V300049026_L01]
+    # sample or id to use for generating targets
+    id: "data"
+    # Chromosomes to evaluate for fragment length and phasing
+    # Leave empty if there are too many chromosomes to specify or you're unsure
+    # This will force snakemake to evaluate all chromosomes
+    chroms: [chr1, chr2, chr3, chr4, chr5, chr6, chr7, chr8, chr9, chr10, chr11, chr12, chr13, chr14, chr15, chr16, chr17, chr18, chr19, chr20, chr21, chr22, chrX, chrY]
+modules:
+    # Should snakemake do stlfr specific analyses, false if the library isn't of linked reads
+    stLFR: True
+    # Should a VCF be generated
+    variant_calling: False
+    # Should VCF results be benchmarked against the files specified under benchmark
+    benchmarking: False
+    # Should longhap and hapcut be run and evaluated
+    phasing: False
+    # You'll probably never run this
+    mate_pair_analysis: False
+    # or this
+    read_overlap_analysis: False
+    # or this
+    duplicate_plot: False
+    # output files necessary for UMI analysis
+    umi_analysis: False
+params:
+    # specify reference to be used for analysis
+    ref_fa: "/research/rv-02/home/qmao/DBs/hg38_fa_from_NCBI/GCA_000001405.15_GRCh38_no_alt_analysis_set.fa"
+    # This is a tag for the Readgroup
+    platform: "BGI-seq"
+    # Read length without barcode
+    read_len: 100
+    # directory with tools to be used, probably won't need to be changed
+    toolsdir: "/research/rv-02/home/eanderson/CGI_WGS_Pipeline/Data_and_Tools"
+    # barcodes file
+    barcode: "/barcode.list"
+    # reverse complemented barcodes
+    barcode_RC: "/barcode_RC.list"
+    # path to gatk install, if you change you may have to modify flags in rules
+    gatk_install: "/home/eanderson/gatk-4.1.2.0/gatk"
+    # sentieon install directory. This is specific to their commercial tools, not the assembly software
+    sentieon_install: "/opt/sentieon-genomics-201808.07"
+    # License server path
+    sentieon_license: "SENTIEON_LICENSE=sentieon-license-server.completegenomics.com:8990"
+    # Path to the python version Wenlan used for some analyses
+    wenlan_python: "/opt/cgi-anaconda2-4.4.0/bin/python"
+    # Path to the python version Qing used for gcbias calcs
+    gcbias_python: "/research/rv-02/home/qmao/Scripts/python_virtualenv/python_packages/env/bin/python"
+    # Path to dbSNP, update for hs37d5. Leave blank if there's no appropriate version of dnsnp
+    dbsnp_path: "/research/rv-02/home/eanderson/Resources_And_DBs/dbsnp_138.hg38.chrfix.vcf.gz"
+    # Path to Sentieon's variant filtering model
+    sentieon_model: "/research/rv-02/home/eanderson/CGI_WGS_Pipeline/Data_and_Tools/data/DNAscope_BGI_model_beta.txt"
+    # GC Bias index for calculations
+    gc_bias_index: "/research/rv-02/home/eanderson/CGI_WGS_Pipeline/Data_and_Tools/data/hg38/GCA_000001405.15_GRCh38_no_alt_analysis_set.fa.500.gc"
+    # bcftools install
+    bcftools: "/opt/cgi-tools/bin/bcftools"
+    # a parameter for hapcut, shouldn't have to be changed
+    hapcut_link_dist: 100000
+    # LongHap executable path
+    longhap: "/home/ysun/LongHap_v1.3.1/Bin/LongHap.pl"
+calc_frag:
+    # split distances to use for long fragment calculations
+    split_dist: [50000, 300000]
+    # minimum fragment length for fragment calculations
+    min_frag: 750
+    # include duplicates, in fragment calculations. If two reads share the same barcode and mapping position they're treated as duplicates anyway.
+    include_dups: True
+longhap:
+    # Longhap parameters, window size determines bin size for calculations
+    win_size: 10000000
+    # Max expected length of LFR fragment
+    max_lfr_len: 300000
+    min_barcode: 1
+    min_link: 1
+benchmark:
+    # path to snp benchmark
+    # Should just be able to change the number in HG00N to the appropriate sample
+    benchmark_snp: "/research/rv-02/home/eanderson/Resources_And_DBs/hg38_GIAB/HG001/benchmark_snp.chrfix.vcf.gz"
+    # path to indel benchmark
+    benchmark_indel: "/research/rv-02/home/eanderson/Resources_And_DBs/hg38_GIAB/HG001/benchmark_indel.chrfix.vcf.gz"
+    # path to high confidence bed file
+    bedfile: "/research/rv-02/home/eanderson/Resources_And_DBs/hg38_GIAB/HG001/benchmark_bed.chrfix.bed"
+    # path to reference sdf, should just need to change if you change the reference and plan to benchmark
+    ref_sdf: "/research/rv-02/home/qmao/DBs/hg38_benchmark_ref/GRCh38.sdf"
+    # leave blank unless it's a benchmarked sample
+    # Currently these directories aren't set up for hg38, though they're really just the truth VCFs split up by chromosome
+    truth_vcf_dir: # directorty of vcfs for phasing; formatted as truth_chroms_{chr}.vcf
+threads:
+    # threads for various multi-threaded processes
+    # These can be modified if you wish
+    # They're automatically capped to the number of threads you specify when running snakemake with the -j option
+    bwa: 100
+    haplotyper: 100
+    metrics: 10
+    gnu_parallel: 20
+    calc_frag: 8
