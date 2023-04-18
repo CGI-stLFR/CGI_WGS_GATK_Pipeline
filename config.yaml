@@ -29,8 +29,8 @@ modules:
     # output files necessary for UMI analysis
     umi_analysis: False
 params:
-    ## somes path in SJ or SZ
-    # ## somes path in SJ
+    
+    ########### path in SJ ###########
     # ref_fa: "/research/rv-02/home/eanderson/CGI_WGS_Pipeline/Data_and_Tools/data/hg38/GCA_000001405.15_GRCh38_no_alt_analysis_set.fa"
     # toolsdir: "/research/rv-02/home/eanderson/CGI_WGS_Pipeline/Data_and_Tools"
     # src_dir: "/home/ycai/hm/dev/pipeline/dev/CGI_WGS_nonstandard_Pipeline/"
@@ -43,8 +43,10 @@ params:
     # gc_bias_index: "/research/rv-02/home/eanderson/CGI_WGS_Pipeline/Data_and_Tools/data/hg38/GCA_000001405.15_GRCh38_no_alt_analysis_set.fa.500.gc"
     # # rtg for SNP accuracy
     # rtg_install: "/research/rv-02/home/qmao/Scripts/rtg-tools-3.8.4/rtg"
+    gcbias_python: "/home/ycai/anaconda3/envs/gcbias/bin/python"
+    ########### ###########
 
-    # somes path in SZ
+    ########### path in SZ ###########
     ref_fa: "/home/ycai/ycai/pipeline/CGI_WGS_Pipeline/Data_and_Tools/data/hg38/GCA_000001405.15_GRCh38_no_alt_analysis_set.fa"
     toolsdir: "/home/ycai/ycai/pipeline/CGI_WGS_Pipeline/Data_and_Tools/"
     src_dir: "/hwfssz8/MGI_CG_SZ/USER/luozhenyu/software/git_pipeline/dev/CGI_WGS_nonstandard_Pipeline/"
@@ -57,8 +59,11 @@ params:
     gc_bias_index: "/home/ycai/ycai/pipeline/CGI_WGS_Pipeline/Data_and_Tools/data/hg38/GCA_000001405.15_GRCh38_no_alt_analysis_set.fa.500.gc"
     # rtg for SNP accuracy
     rtg_install: "/hwfssz8/MGI_CG_SZ/USER/luozhenyu/software/rtg-tools-3.8.4/rtg"
-    
-    # choose from 'standard_pe', 'standard_se', 'bc_start'=bc at 5' of R2s, 'skip_bc1', 'diff_length'=PE40+200 (SPHY12AA/SPHY20AA:R1=40gDNA+R2=42BC+45adapter+113gDNA, or or R1=40gDNA+R2=42BC+79adapter+79gDNA), 'random_bc'
+    # Path to the python version Qing used for gcbias, calc_frag
+    gcbias_python: "/hwfssz8/MGI_CG_SZ/USER/luozhenyu/anaconda3/envs/gcbias/bin/python"
+    ########### ###########
+
+    # choose from 'se_bc5'=bc at 5'of read2, 'standard_pe', 'standard_se', 'bc_start'=bc at 5' of R2s, 'skip_bc1', 'diff_length'=PE40+200 (SPHY12AA/SPHY20AA:R1=40gDNA+R2=42BC+45adapter+113gDNA, or or R1=40gDNA+R2=42BC+79adapter+79gDNA), 'random_bc'
     bc_condition: 'diff_length'
     bwa_mem: 'mem'
     gc_swap: False
@@ -76,9 +81,8 @@ params:
     sentieon_license: "SENTIEON_LICENSE=sentieon-license-server.completegenomics.com:8990"
     # Path to the python version Wenlan used for some analyses
     wenlan_python: "/opt/cgi-anaconda2-4.4.0/bin/python"
-    # Path to the python version Qing used for gcbias, calc_frag
-    gcbias_python: "/hwfssz8/MGI_CG_SZ/USER/luozhenyu/anaconda3/envs/gcbias/bin/python"
 
+    
     # Path to Sentieon's variant filtering model
     sentieon_model: "/research/rv-02/home/eanderson/CGI_WGS_Pipeline/Data_and_Tools/data/DNAscope_BGI_model_beta.txt"
     # bcftools install
@@ -93,13 +97,13 @@ calc_frag:
     split_dist: [50000, 300000]
     # minimum fragment length for fragment calculations
     min_frag: 750
-    # include duplicates, in fragment calculations. If two reads share the same barcode and mapping position they're treated as duplicates anyway.
-    include_dups: False
+    # true=check dup pos, but N_Reads always dedup; include duplicates, in fragment calculations. If two reads share the same barcode and mapping position they're treated as duplicates anyway.
+    include_dups: True
     # object_store_memory=200*1024*1024*1024, memory=100*1024*1024*1024 [(200,1024), (100, 1024)]
     # set ray mem, no space between numbers, need to be 200G
     ray_mem: "200,1024,100,1024"
     # ray_mem: "9000,1,9000,1"
-    writeouttsvs: False
+    writeouttsvs: True
 longhap:
     # Longhap parameters, window size determines bin size for calculations
     win_size: 10000000
@@ -108,7 +112,7 @@ longhap:
     min_barcode: 1
     min_link: 1
 benchmark:
-    # # path to snp benchmark in SJ
+    ############ path to snp benchmark in SJ ############
     # # Should just be able to change the number in HG00N to the appropriate sample
     # benchmark_snp: "/research/rv-02/home/eanderson/CGI_WGS_Pipeline/Data_and_Tools/data/hg38_GIAB_HG001/benchmark_snp.chrfix.vcf.gz"
     # # path to indel benchmark
@@ -117,8 +121,10 @@ benchmark:
     # bedfile: "/research/rv-02/home/eanderson/CGI_WGS_Pipeline/Data_and_Tools/data/hg38_GIAB_HG001/benchmark_bed.chrfix.bed"
     # # path to reference sdf, should just need to change if you change the reference and plan to benchmark
     # ref_sdf: "/research/rv-02/home/eanderson/CGI_WGS_Pipeline/Data_and_Tools/data/hg38_benchmark_ref/GRCh38.sdf"
-    
-    # path to snp benchmark in SZ
+    ############ ############
+
+
+    ############ path to snp benchmark in SZ ############
     # Should just be able to change the number in HG00N to the appropriate sample
     benchmark_snp: "/home/ycai/ycai/pipeline/CGI_WGS_Pipeline/Data_and_Tools/data/hg38_GIAB_HG001/benchmark_snp.chrfix.vcf.gz"
     # path to indel benchmark
@@ -127,21 +133,23 @@ benchmark:
     bedfile: "/home/ycai/ycai/pipeline/CGI_WGS_Pipeline/Data_and_Tools/data/hg38_GIAB_HG001/benchmark_bed.chrfix.bed"
     # path to reference sdf, should just need to change if you change the reference and plan to benchmark
     ref_sdf: "/home/ycai/ycai/pipeline/CGI_WGS_Pipeline/Data_and_Tools/data/hg38_benchmark_ref/GRCh38.sdf"
+    ############ ############
     
     # leave blank unless it's a benchmarked sample
     # Currently these directories aren't set up for hg38, though they're really just the truth VCFs split up by chromosome
-    truth_vcf_dir: # directorty of vcfs for phasing; formatted as truth_chroms_{chr}.vcf
+    truth_vcf_dir: "/home/ycai/hm/dev/pipeline/by_eanderson/CGI_WGS_Pipeline/Data_and_Tools/data/truth_vcf_dir" # directorty of vcfs for phasing; formatted as truth_chroms_{chr}.vcf
 threads:
     # threads for various multi-threaded processes
     # These can be modified if you wish
     # They're automatically capped to the number of threads you specify when running snakemake with the -j option
-    # # in SJ
+    ### # in SJ
     # bwa: 100
     # haplotyper: 100
-    # in SZ
+    ########### in SZ ############
     bwa: 20
     haplotyper: 20
-    
+    ############ ############
+
     metrics: 10
     gnu_parallel: 20
     calc_frag: 4

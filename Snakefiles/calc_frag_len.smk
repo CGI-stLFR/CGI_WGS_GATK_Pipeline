@@ -1,16 +1,16 @@
 # the mark duplicates rule just addds the flag, the below removes duplicates
 # hapcut uses this sam file
 # We also remove barcode uninformative reads (0_0_0)
-rule remove_duplicates:
-    input:
-        "Align/{id}.sort.rmdup.bam"
-    output:
-        "Align/{id}.sort.removedup_rm000.sam"
-    benchmark:
-        "Benchmarks/calc_frag_len.remove_duplicates.{id}.txt"
-    shell:
-        "samtools view -h -F 0x400 {input} | "
-        "awk -F $'\t' '($1!~/#0_0_0$/){{print}}' > {output}"
+#rule remove_duplicates:
+#    input:
+#        "Align/{id}.sort.rmdup.bam"
+#    output:
+#        "Align/{id}.sort.removedup_rm000.sam"
+#    benchmark:
+#        "Benchmarks/calc_frag_len.remove_duplicates.{id}.txt"
+#    shell:
+#        "samtools view -h -F 0x400 {input} | "
+#        "awk -F $'\t' '($1!~/#0_0_0$/){{print}}' > {output}"
 
 
 # this formats the chroms to be used as a flag for calc_frag_len.py

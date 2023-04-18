@@ -12,8 +12,9 @@ rule run_dnascope:
     benchmark:
         "Benchmarks/make_vcf.run_hpcaller.{id}.txt"
     run:
-        command = ["{params.gatk_install}", "gatk", "HaplotypeCaller"
-                   "-R", "{input.ref}", "-I", "{input.bam}"]
+        command = ["{params.gatk_install}", "HaplotypeCaller",
+                   "-R", "{input.ref}", "-I", "{input.bam}",
+                   "-O", "{output}"]
         # if dbsnp isn't supplied, omit the -d flag
         if params.dbsnp:
             command.extend(["-D", "{params.dbsnp}"])
@@ -21,18 +22,37 @@ rule run_dnascope:
 
 # Filter to keep pass vars
 # This is necessary for LongHap and HapCut since they don't  check the filter column
+# rule keep_pass_vars:
+#     input:
+#         "Make_Vcf/step1_haplotyper/{id}_gatk.vcf"
+#     output:
+#         "Make_Vcf/step1_haplotyper/{id}_gatk_pass_vars.vcf"
+#     benchmark:
+#         "Benchmarks/make_vcf.keep_pass_vars.{id}.txt"
+#     shell:
+#         """
+#         awk '($1~/^#/ || $7=="PASS" || $7=="."){{print}}' {input} > {output}
+#         """
 rule keep_pass_vars:
     input:
         "Make_Vcf/step1_haplotyper/{id}_gatk.vcf"
+    params: 
+        g=11,
+        G=61,
+        m=0.11,
+        M=0.265,
+        x=5.5,
+        X=3.95,
+        id = config['samples']['id'],
+        toolsdir = config['params']['toolsdir']
     output:
         "Make_Vcf/step1_haplotyper/{id}_gatk_pass_vars.vcf"
     benchmark:
         "Benchmarks/make_vcf.keep_pass_vars.{id}.txt"
     shell:
         """
-        awk '($1~/^#/ || $7=="PASS" || $7=="."){{print}}' {input} > {output}
+        python3 {params.toolsdir}/tools/vcffilter.py  -g {params.g} -G {params.G} -m {params.m} -M {params.M} -x {params.x} -X {params.X} -infile {input} -sample {params.id}
         """
-
 
 # Filter to keep SNPs
 # This is used for evaluating against a benchmark

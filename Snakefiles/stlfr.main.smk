@@ -48,6 +48,19 @@ rule index_mark_dups:
     shell:
         "samtools index {input}"
 
+# the mark duplicates rule just addds the flag, the below removes duplicates
+# hapcut uses this sam file
+# We also remove barcode uninformative reads (0_0_0)
+rule remove_duplicates:
+    input:
+        "Align/{id}.sort.rmdup.bam"
+    output:
+        "Align/{id}.sort.removedup_rm000.sam"
+    benchmark:
+        "Benchmarks/calc_frag_len.remove_duplicates.{id}.txt"
+    shell:
+        "samtools view -h -F 0x400 {input} | "
+        "awk -F $'\t' '($1!~/#0_0_0$/){{print}}' > {output}"
 
 # This step parses the duplicate metrics and creates a more readable summary
 rule mark_dups_txt:

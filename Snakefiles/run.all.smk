@@ -93,14 +93,14 @@ rule run_all:
 # Include other modules and rules to run
 # When possible the include statement points to the CGI_WGS_Pipeline
 # This should limit redundancy when editing rules, hopefully
-include: "/research/rv-02/home/eanderson/CGI_WGS_GATK_Pipeline/Snakefiles/calc_frag_len.snakefile"
-include: "/research/rv-02/home/eanderson/CGI_WGS_Pipeline/Snakefiles/remove_sam_analysis.snakefile"
-include: "/research/rv-02/home/eanderson/CGI_WGS_GATK_Pipeline/Snakefiles/make_vcf.snakefile"
-include: "/research/rv-02/home/eanderson/CGI_WGS_GATK_Pipeline/Snakefiles/metrics.snakefile"
-include: "/research/rv-02/home/eanderson/CGI_WGS_GATK_Pipeline/Snakefiles/stlfr.main.snakefile"
-include: "/research/rv-02/home/eanderson/CGI_WGS_Pipeline/Snakefiles/splitreads.snakefile"
-include: "/research/rv-02/home/eanderson/CGI_WGS_GATK_Pipeline/Snakefiles/phasing.snakefile"
+include: "/research/rv-02/home/eanderson/CGI_WGS_GATK_Pipeline/Snakefiles/calc_frag_len.smk"
+include: "/research/rv-02/home/eanderson/CGI_WGS_Pipeline/Snakefiles/remove_sam_analysis.smk"
+include: "/research/rv-02/home/eanderson/CGI_WGS_GATK_Pipeline/Snakefiles/make_vcf.smk"
+include: "/research/rv-02/home/eanderson/CGI_WGS_GATK_Pipeline/Snakefiles/metrics.smk"
+include: "/research/rv-02/home/eanderson/CGI_WGS_GATK_Pipeline/Snakefiles/stlfr.main.smk"
+include: "/research/rv-02/home/eanderson/CGI_WGS_Pipeline/Snakefiles/splitreads.smk"
+include: "/research/rv-02/home/eanderson/CGI_WGS_GATK_Pipeline/Snakefiles/phasing.smk"
 
 # source the bash_profile setup for the pipeline
-shell.prefix('source /research/rv-02/home/eanderson/CGI_WGS_Pipeline/Data_and_Tools/bash_profile; ')
+# shell.prefix('source /research/rv-02/home/eanderson/CGI_WGS_Pipeline/Data_and_Tools/bash_profile; ')
 
